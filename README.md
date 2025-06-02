@@ -66,4 +66,6 @@ If this resonates with you, join the conversation:
  - Join the [BEE Community](https://wearecommunity.io/communities/bee-community) to stay in the loop
  - Star the project on [GitHub](https://github.com/openprofile-ai/openprofile) to show your support ⭐
 
+ ---
+
 > Let’s make context portable — and useful.
