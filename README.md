@@ -62,7 +62,7 @@ So any feedback, relevant experience, or references to similar initiatives are h
 
 If this resonates with you, join the conversation:
  
- - Submit the question or idea
+ - [Submit the question or idea](https://forms.office.com/e/wX8vjwicd2)
  - Join the [BEE Community](https://wearecommunity.io/communities/bee-community) to stay in the loop
  - Star the project on [GitHub](https://github.com/openprofile-ai/openprofile) to show your support ⭐
 
