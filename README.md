@@ -54,6 +54,8 @@ We’re seeking early sponsors who believe in:
 
 ## 🤝 Want to Contribute?
 
+[![Join OpenProfile Initiative](https://img.shields.io/badge/Join-Initiative-blueviolet?style=for-the-badge&logo=github)](https://forms.office.com/e/wX8vjwicd2)
+
 The idea of the OpenProfile.AI standard is in a very early stage.
 We’ve just started gathering information about real-world challenges, testing hypotheses, and listening to both businesses and users.
 The original idea may evolve. The concept might expand — or get more focused.
