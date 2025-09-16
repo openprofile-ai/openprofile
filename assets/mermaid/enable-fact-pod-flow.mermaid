@@ -1,0 +1,31 @@
+---
+config:
+  look: neo
+  theme: redux
+---
+
+sequenceDiagram
+    actor User
+    participant LLM as AI Assistant
+    participant Gateway as Gateway<br>[OpenProfile]
+    participant Site.com as Site.com<br>[OpenProfile Fact Pod]
+
+    User->>LLM: Enable fact pod for Site.com
+    LLM->>Gateway: Call EnableFactPod tool
+    Gateway->>Gateway: Check if Site.com already enabled for this User
+    Gateway->>Gateway: Check if Site.com already enabled for the Gateway
+    Gateway->>Site.com: Check if Site.com supports OpenProfile.ai
+    Gateway->>Site.com: Dynamically register as OAuth client
+    Site.com-->>Gateway: OAuth client_id, client_secret, redirect_url
+    Gateway->>Gateway: Store OAuth client config in the database
+    Gateway->>Gateway: Generate authorize url
+    Gateway-->>LLM: Authorize url
+    LLM-->>User: Authorize url
+    User->>Site.com: Proceed with authorisation
+
+    Note right of Site.com: User Logs In and Choose facts to share
+
+    Site.com-->>Gateway: Inform whether authorisation flow succeed or failed
+    Gateway->>Site.com: Request access_token and refresh_token
+    Gateway->>Gateway: Store User's access_token and refresh_token in the database
+    Gateway->>LLM: Redirect to AL Assistant
