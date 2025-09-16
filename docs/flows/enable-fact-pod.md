@@ -11,12 +11,24 @@ The Gateway first checks whether the Fact Pod is already enabled for the user an
 
 ### 1. Check if Site.com Supports OpenProfile.ai
 
-The Gateway verifies whether the website supports OpenProfile.ai by querying the `.well-known/openprofile.json` endpoint. This endpoint must comply with the [OpenID Connect Discovery Specification](https://openid.net/specs/openid-connect-discovery-1_0.html). The response from this endpoint provides essential metadata about the Fact Pod, including supported OAuth endpoints, scopes, and fact categories.
+The Gateway verifies whether the website supports OpenProfile.ai by querying the **`.well-known/openprofile.json`** endpoint.  
 
-The `.well-known/openprofile.json` endpoint **must** return the following structure:
+This endpoint **must** comply with the [OpenID Connect Discovery Specification](https://openid.net/specs/openid-connect-discovery-1_0.html) and **extend it** with OpenProfile.ai-specific metadata.
+
+The response from this endpoint provides essential details about the Fact Pod, including:
+
+- Supported OAuth endpoints
+- OAuth capabilities (scopes, grant types, response types)
+- Fact categories available
+- Schema.org self‑description to help **LLMs** and other agents understand the type and scope of information available
+
+#### Example `.well-known/openprofile.json`
 
 ```json
 {
+    "openprofile": {
+        "version": "0.0.1"
+    },
     "issuer": "https://someshop.online",
     "authorization_endpoint": "https://someshop.online/openprofile/oauth/authorize",
     "token_endpoint": "https://someshop.online/openprofile/oauth/access_token",
@@ -37,23 +49,58 @@ The `.well-known/openprofile.json` endpoint **must** return the following struct
         "facts:category-16",
         "facts:category-18",
         "facts:wishlist"
-    ]
+    ],
+    "factpod": {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "openprofile",
+        "description": "One more site on WordPress",
+        "url": "https://someshop.online",
+        "hasPart": {
+            "@type": "OfferCatalog",
+            "name": "Product Categories",
+            "url": "https://someshop.online/shop-2/",
+            "itemListElement": [
+                {
+                    "@type": "OfferCatalog",
+                    "name": "Body lotion",
+                    "url": "https://someshop.online/product-category/body-lotion/",
+                    "description": ""
+                },
+                {
+                    "@type": "OfferCatalog",
+                    "name": "Bundles",
+                    "url": "https://someshop.online/product-category/bundles/",
+                    "description": ""
+                },
+                {
+                    "@type": "OfferCatalog",
+                    "name": "Cleanser",
+                    "url": "https://someshop.online/product-category/cleanser/",
+                    "description": ""
+                }
+            ]
+        }
+    }
 }
 ```
 
 #### Important Fields
 
-| Field                                   | Description                                                                                      |
-|-----------------------------------------|--------------------------------------------------------------------------------------------------|
-| `issuer`                                | The base URL of your WordPress site, used to identify the token issuer                           |
-| `authorization_endpoint`                | The URL where users are redirected to authorize client applications                              |
-| `token_endpoint`                        | The URL where client applications can exchange authorization codes for access tokens             |
-| `registration_endpoint`                 | The URL where new client applications can register                                               |
-| `jwks_uri`                              | The URL to the JSON Web Key Set (JWKS) containing the public keys used to verify tokens          |
-| `response_types_supported`              | The OAuth 2.0 response types supported by this server (e.g., "code")                             |
-| `grant_types_supported`                 | The OAuth 2.0 grant types supported by this server (e.g., "authorization_code", "refresh_token") |
-| `token_endpoint_auth_methods_supported` | Authentication methods supported at the token endpoint                                           |
-| `scopes_supported`                      | List of OAuth scopes supported by this server                                                    |
+| Field                                   | Description                                                                                          |
+|-----------------------------------------|------------------------------------------------------------------------------------------------------|
+| `openprofile.version`                   | Version of the OpenProfile.ai specification implemented by this Fact Pod                             |
+| `issuer`                                | The base URL of your site, used to identify the token issuer                                         |
+| `authorization_endpoint`                | The URL where users are redirected to authorize client applications                                  |
+| `token_endpoint`                        | The URL where client applications exchange authorization codes for access tokens                     |
+| `registration_endpoint`                 | The URL where new client applications can register (RFC 7591 Dynamic Client Registration)            |
+| `jwks_uri`                              | The URL to the JSON Web Key Set (JWKS) containing the public keys to verify tokens                   |
+| `response_types_supported`              | The OAuth 2.0 response types supported by the server (e.g., `"code"`)                                |
+| `grant_types_supported`                 | The OAuth 2.0 grant types supported by the server (e.g., `"authorization_code"`, `"refresh_token"`)  |
+| `token_endpoint_auth_methods_supported` | Authentication methods supported at the token endpoint                                               |
+| `scopes_supported`                      | List of OAuth scopes supported by the server                                                         |
+| `factpod`                               | Schema.org `WebSite` object describing the Fact Pod, including category structure via `OfferCatalog` |
+
 
 > .well-known/openprofile-jwks.json: This file contains the JSON Web Key Set (JWKS) with the public key information used to verify the signatures of JSON Web Tokens (JWTs) issued by your server.
 
