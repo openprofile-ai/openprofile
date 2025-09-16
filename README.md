@@ -1,9 +1,9 @@
-# OpenProfile.AI  
+# OpenProfile.ai
 ### A shared context layer for personalized AI, built on facts — not guesses.
 
 ## 🌐 Concept
 
-**OpenProfile.AI** is not a product or protocol — it’s a **paradigm shift** in how AI systems understand users across digital ecosystems.
+**OpenProfile.ai** is not a product or protocol — it’s a **paradigm shift** in how AI systems understand users across digital ecosystems.
 
 Born at the intersection of:
 - **Schema.org** — structured, machine-readable data for the web  
@@ -26,16 +26,16 @@ Brands spend millions training models that **barely know their users**.
 We believe the missing link isn’t *more* data — it’s **better access to user-declared facts**,  
 safely shared through a trust-based model.
 
-**OpenProfile.AI** is an invitation to rethink identity, context, and preference in the age of AI.
+**OpenProfile.ai** is an invitation to rethink identity, context, and preference in the age of AI.
 
 
 ## 📚 Publications
 
-| Title                                         | Resource                                      |
-|----------------------------------------------|-----------------------------------------------|
-| It’s time to take control of your data and make it work for you, not for advertisers!|[EN](https://medium.com/@maksym.odanets/a-future-where-ai-understands-you-84b8479c7147)|
-| A Future Where AI Understands You Better Than Ever|[EN](https://medium.com/@maksym.odanets/the-end-of-contextual-ads-the-rise-of-conversational-context-f0c9b9eb9966)|
-| The End of Contextual Ads. The Rise of Conversational Context|[EN](https://medium.com/@maksym.odanets/its-time-to-take-control-of-your-data-and-make-them-work-for-you-not-for-advertisers-efc24dd49438)|
+| Title                                                                                 | Resource                                                                                                                                   |
+|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| It’s time to take control of your data and make it work for you, not for advertisers! | [EN](https://medium.com/@maksym.odanets/a-future-where-ai-understands-you-84b8479c7147)                                                    |
+| A Future Where AI Understands You Better Than Ever                                    | [EN](https://medium.com/@maksym.odanets/the-end-of-contextual-ads-the-rise-of-conversational-context-f0c9b9eb9966)                         |
+| The End of Contextual Ads. The Rise of Conversational Context                         | [EN](https://medium.com/@maksym.odanets/its-time-to-take-control-of-your-data-and-make-them-work-for-you-not-for-advertisers-efc24dd49438) |
 
 ## 🧠 Expert Circle
 
@@ -56,7 +56,7 @@ We’re seeking early sponsors who believe in:
 
 [![Join OpenProfile Initiative](https://img.shields.io/badge/Join-Initiative-blueviolet?style=for-the-badge&logo=github)](https://forms.office.com/e/wX8vjwicd2)
 
-The idea of the OpenProfile.AI standard is in a very early stage.
+The idea of the OpenProfile.ai standard is in a very early stage.
 We’ve just started gathering information about real-world challenges, testing hypotheses, and listening to both businesses and users.
 The original idea may evolve. The concept might expand — or get more focused.
 
