@@ -12,7 +12,6 @@ The architecture is built around two core components:
 
 The architecture prioritizes **security**, **privacy**, and **interoperability**, ensuring that user data is accessed only with explicit permission and is never stored by the Gateway. By leveraging open standards like OAuth and Schema.org, OpenProfile.ai ensures compatibility across diverse systems and platforms.
 
----
 
 # Scope
 
@@ -39,7 +38,6 @@ To accelerate adoption, OpenProfile.ai offers pre-built Fact Pod plugins for pop
 
 > These plugins are designed to be easy to install and configure, enabling businesses to quickly integrate OpenProfile.ai functionality without extensive development effort.
 
----
 
 # Participants
 
@@ -133,7 +131,6 @@ The **Fact Pod** is a data provider hosted by a website or service that owns use
 
 > When users revoke access, the Fact Pod immediately invalidates the associated tokens, ensuring that no further data can be retrieved without renewed consent.
 
----
 
 # Flows
 

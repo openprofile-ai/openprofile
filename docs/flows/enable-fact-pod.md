@@ -6,7 +6,6 @@ The Gateway first checks whether the Fact Pod is already enabled for the user an
 
 ![enable-fact-pod-flow.png](../../assets/img/enable-fact-pod-flow.png)
 
----
 
 ## Key Steps
 
@@ -58,7 +57,6 @@ The `.well-known/openprofile.json` endpoint **must** return the following struct
 
 > .well-known/openprofile-jwks.json: This file contains the JSON Web Key Set (JWKS) with the public key information used to verify the signatures of JSON Web Tokens (JWTs) issued by your server.
 
----
 
 ### 2. Dynamically Register as OAuth Client
 
@@ -97,7 +95,6 @@ grant_types=authorization_code%20refresh_token
 
 > **Important**: The `client_secret` is only returned once during registration. Make sure to store it securely as it cannot be retrieved later.
 
----
 
 ### 3. Generate Authorization URL
 
@@ -124,7 +121,6 @@ https://someshop.online/openprofile/oauth/authorize?
 | `scope`         | Yes         | Space-separated list of scopes the client is requesting access to                      |
 | `state`         | Recommended | An opaque value used by the client to maintain state between the request and callback  |
 
----
 
 ### 4. Redirect to Gateway to proceed with authorisation flow
 
@@ -135,7 +131,6 @@ Once the user clicks the authorization URL provided by the Gateway, they are red
 After receiving the authorization code from the Fact Pod, the Gateway initiates a token exchange process by making a request to the Fact Pod’s token_endpoint. This step follows the standard OAuth 2.0 flow, where the authorization code is exchanged for an access_token and a refresh_token. The access_token allows the Gateway to retrieve facts from the Fact Pod, while the refresh_token enables the Gateway to renew the access_token when it expires, ensuring uninterrupted access.
 
 Example request and response for access_token:
-
 
 ```
 POST https://someshop.online/openprofile/oauth/access_token
@@ -171,3 +166,4 @@ code=def502003d0e1b9b6
 
 The Gateway securely stores the tokens and associates them with the user’s session, maintaining compliance with privacy and security standards.
 
+---
