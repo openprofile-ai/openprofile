@@ -25,7 +25,7 @@ sequenceDiagram
 
     Note right of Site.com: User Logs In and Choose facts to share
 
-    Site.com-->>Gateway: Inform whether authorisation flow succeed or failed
+    User->>Gateway: Redirect to Gateway to proceed with authorisation flow
     Gateway->>Site.com: Request access_token and refresh_token
     Gateway->>Gateway: Store User's access_token and refresh_token in the database
     Gateway->>LLM: Redirect to AL Assistant
