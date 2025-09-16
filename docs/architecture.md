@@ -134,3 +134,11 @@ The **Fact Pod** is a data provider hosted by a website or service that owns use
 > When users revoke access, the Fact Pod immediately invalidates the associated tokens, ensuring that no further data can be retrieved without renewed consent.
 
 ---
+
+# Flows
+
+| Flow Name            | Description                                   | Link                                               |
+|----------------------|-----------------------------------------------|----------------------------------------------------|
+| Enable Fact Pod Flow | Describes the process of enabling a Fact Pod. | [Enable Fact Pod Flow](./flows/enable-fact-pod.md) |
+
+---

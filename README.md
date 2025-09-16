@@ -15,6 +15,13 @@ OpenProfile proposes a **decentralized context layer**, where people can share c
 with the websites and AI assistants they trust — **without sacrificing privacy or control**.
 
 
+## 🏗️ Architecture
+
+The OpenProfile.ai architecture is designed to enable secure, privacy-respecting, and interoperable communication between AI systems and user-owned data sources. It is built around two core components: the **Gateway** and the **Fact Pod**.
+
+To learn more about the technical design, key participants, and how OpenProfile.ai works, check out the [Architecture Documentation](./docs/architecture.md).
+
+
 ## 🤖 Why Now?
 
 AI systems — from recommendation engines to shopping assistants — suffer from:
