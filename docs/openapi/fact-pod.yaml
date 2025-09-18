@@ -253,7 +253,9 @@ paths:
                     type: string
                     format: uri
                   grant_types:
-                    type: string
+                    type: array
+                    items:
+                      type: string
   /openprofile/oauth/authorize:
     get:
       summary: OAuth 2.0 Authorization Endpoint
@@ -417,7 +419,7 @@ paths:
                             '@id':
                               type: string
                               format: uri
-                              example: http://docker.vm/my-account-2/view-order/1856/#item-17
+                              example: https://someshop.online/my-account-2/view-order/1856/#item-17
                             orderDate:
                               type: string
                               format: date
@@ -447,7 +449,7 @@ paths:
                                 '@id':
                                   type: string
                                   format: uri
-                                  example: http://docker.vm/product/339/
+                                  example: https://someshop.online/product/339/
                                 name:
                                   type: string
                                   example: Almond Milk Lotion
@@ -457,7 +459,7 @@ paths:
                                 additionalType:
                                   type: string
                                   format: uri
-                                  example: http://docker.vm/product-category/body-lotion/
+                                  example: https://someshop.online/product-category/body-lotion/
               example:
                 '@context': https://schema.org
                 '@type': ItemList
@@ -467,7 +469,7 @@ paths:
                     position: 1
                     item:
                       '@type': Order
-                      '@id': http://docker.vm/my-account-2/view-order/1856/#item-17
+                      '@id': https://someshop.online/my-account-2/view-order/1856/#item-17
                       orderDate: '2023-09-18'
                       totalPrice: 28
                       priceCurrency: UAH
@@ -476,10 +478,10 @@ paths:
                         name: openprofile
                       orderedItem:
                         '@type': Product
-                        '@id': http://docker.vm/product/339/
+                        '@id': https://someshop.online/product/339/
                         name: Almond Milk Lotion
                         category: Body lotion
-                        additionalType: http://docker.vm/product-category/body-lotion/
+                        additionalType: https://someshop.online/product-category/body-lotion/
         '401':
           description: Unauthorized or invalid token
 components:
