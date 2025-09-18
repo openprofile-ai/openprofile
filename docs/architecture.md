@@ -1,141 +1,105 @@
-# Architecture Overview
+# OpenProfile.ai — Architecture
 
-OpenProfile.ai is a modular framework designed to enable AI agents and websites to securely access user-owned data for delivering deeply personalized experiences.
-The modular design allows OpenProfile.ai to be integrated into diverse systems, from standalone AI agents to embedded components within websites or applications.
-The architecture is built around two core components:
+**OpenProfile.ai** is a framework that lets AI agents and websites securely access **user-owned data** — but *only with the user’s permission*.  
+The goal: deliver **truly personalized** experiences without sacrificing **security** or **privacy**.
 
-![architecture-standalone-gateway.png](../assets/img/architecture-standalone-gateway.png)
-*this diagram shows how a standalone Gateway interacts with Fact Pods and external systems to retrieve user-approved facts.
+It’s **modular** — so it works whether you’re building:
+- A standalone AI agent,
+- An embedded feature inside a website,
+- Or an app that needs external user context.
 
-1. **Gateway**: A stateless intermediary that handles authentication, fact requests, and secure communication between AI agents/websites and data sources.
-2. **Fact Pod**: A plugin or module hosted by websites or services that own user data. It authenticates requests, verifies user consent, and provides facts in a standardized format.
+At the heart of OpenProfile.ai are **two main building blocks**:
 
-The architecture prioritizes **security**, **privacy**, and **interoperability**, ensuring that user data is accessed only with explicit permission and is never stored by the Gateway. By leveraging open standards like OAuth and Schema.org, OpenProfile.ai ensures compatibility across diverse systems and platforms.
+## 1. Gateway — *The Secure Middleman*
 
+Think of the **Gateway** as a **stateless, secure messenger** between:
+- An **AI agent / website** asking for data
+- And the **places that hold the data** (Fact Pods)
 
-# Scope
+**What it does:**
+- Handles authentication (OAuth 2.0)
+- Requests “facts” (pieces of data)
+- Never stores your data — just passes it through
+- Can run as:
+    - **Standalone** — separate service for multiple agents
+    - **Embedded** — built into a website or app
 
-OpenProfile.ai provides both a **specification** and **ready-to-use plugins** to simplify adoption for developers and businesses. The scope includes:
+![architecture-standalone-gateway.png](../assets/img/architecture-standalone-gateway.png)  
+  *Example: A standalone Gateway fetching approved facts from Fact Pods.*
 
-### 1. **Specification**
-The OpenProfile.ai specification defines the foundational standards and protocols that enable secure and interoperable communication between Gateways and Fact Pods. Key elements include:
+![architecture-embedded-gateway.png](../assets/img/architecture-embedded-gateway.png)  
+*Example: An embedded Gateway inside a website.*
 
-- **`.well-known/openprofile.json` File**:  
-  A standardized metadata file hosted by Fact Pods that defines their capabilities, including supported fact categories, OAuth endpoints, and scopes. This file enables Gateways to dynamically discover and interact with Fact Pods.
+It speaks standard protocols:
+- **[MCP Protocol](https://modelcontextprotocol.io)** — sharing context securely with LLMs
+- **A2A (Agent-to-Agent) Protocol** — (experimental) letting agents talk directly
 
-- **OAuth-Based Client Registration and Authentication**:  
-  Secure communication between Gateways and Fact Pods is established using OAuth-based flows, including client registration and token exchange. This ensures that only authorized Gateways can request facts from Fact Pods, with explicit user consent.
+It can connect to **many Fact Pods** at once, merging data from different sources — with the user’s explicit consent.
 
-- **Facts Retrieval Flow**:  
-  A standardized process for securely exchanging user-approved data between Gateways and Fact Pods. This ensures that facts are returned in a consistent format using Schema.org notation, enabling seamless integration across diverse systems.
+## 2. Fact Pod — *The Data Owner*
 
-### 2. **Fact Pod Plugins**
-To accelerate adoption, OpenProfile.ai offers pre-built Fact Pod plugins for popular platforms, including:
-- **WordPress**: ([WIP](https://github.com/openprofile-ai/wordpress-fact-pod)) A plugin that allows WordPress websites to securely expose user data (e.g., purchase history, wishlists) via OpenProfile.ai.
-- **Joomla**: (TBD) A module for Joomla-based websites to act as Fact Pods, enabling secure fact retrieval.
-- **Shopify**: (TBD) A Fact Pod integration for Shopify stores to share user data like order history and preferences.
-- **Magento**: (TBD) A plugin for Magento eCommerce platforms to expose user data securely.
+A **Fact Pod** is any service or website **that already has your data** (e.g., purchase history, profile preferences).  
+It’s basically an **API endpoint** that:
+- Knows how to answer fact requests
+- Enforces **user consent** rules
+- Speaks a standardized data format ([Schema.org](https://schema.org))
 
-> These plugins are designed to be easy to install and configure, enabling businesses to quickly integrate OpenProfile.ai functionality without extensive development effort.
+**Key features:**
+- Shared over simple **HTTP**
+- Describes itself via a public metadata file:
 
+  ```
+  /.well-known/openprofile.json
+  ```
+  
+  This file tells Gateways:
+    - Which version of OpenProfile it supports
+    - Supported data categories (“facts”)
+    - OAuth endpoints for secure authentication
 
-# Participants
+- Uses **OAuth 2.0** plus extensions:
+    - [RFC 7591](https://datatracker.ietf.org/doc/html/rfc7591) — Dynamic Client Registration
+    - [OIDC Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html) — Metadata discovery
+- Lets users **pick what to share** and **revoke access anytime**
 
-OpenProfile.ai relies on two primary participants to enable secure and personalized data exchange: the **Gateway** and the **Fact Pod**. Each participant plays a distinct role in the architecture, ensuring seamless communication, user consent, and data privacy.
+> If access is revoked, the Fact Pod instantly invalidates the connection — no more data flows.
 
-## 1. **Gateway**
+## How They Work Together
+In OpenProfile.ai, the User, AI Assistant (LLM), Gateway, and Fact Pod interact through two main flows:
 
-The **Gateway** acts as a secure intermediary between the AI agent (e.g., an LLM) or website and external data sources (Fact Pods). It is responsible for orchestrating fact requests, managing authentication, and ensuring secure communication. The Gateway is designed to be flexible and can operate in various configurations:
+### 1. **Connecting a Fact Pod** *(One-Time Setup)*
+Before the AI can use your personal data, you first connect (“enable”) a Fact Pod.
 
-![architecture-embedded-gateway.png](../assets/img/architecture-embedded-gateway.png)
-*example of architecture with embedded Gateway
+In plain terms:
+1. The user tells the AI to enable a Fact Pod (e.g., “Enable my Site.com account”).
+2. The AI asks the Gateway to set up the connection.
+3. The Gateway checks the Fact Pod’s OpenProfile support and registers itself using **OAuth 2.0** with [Dynamic Client Registration (RFC 7591)](https://datatracker.ietf.org/doc/html/rfc7591).
+4. The user is sent to the Fact Pod’s authorization page, logs in, and chooses which types of “facts” (data categories) to share.
+5. The Fact Pod gives the Gateway secure tokens for future requests — but **no data is sent yet**.
+6. The AI is notified that the Fact Pod is now active.
 
-### Key Features of the Gateway
+This step only happens once per Fact Pod, unless the user revokes access.
 
-- **Standalone or Embedded**:  
-  The Gateway can function as:
-    - A **standalone service** that connects to an LLM or website.
-    - An **embedded component** within an LLM or website to boost recommendation engines or other features requiring user context from external services.
+More details: [Enable Fact Pod flow](./flows/enable-fact-pod.md)
 
-> For instance, a standalone Gateway could be deployed as a microservice to support multiple AI agents, while an embedded Gateway could be integrated directly into a website's recommendation engine to provide personalized suggestions.
+### 2. **Using a Fact Pod** *(Data Retrieval)*
+When the AI needs personalized data:
+1. The user makes a request (e.g., “Recommend a body lotion for my skin”).
+2. The AI asks the Gateway what Fact Pods and fact categories are available for this user.
+3. The AI selects relevant categories and asks the Gateway to fetch them.
+4. The Gateway uses the previously stored OAuth tokens to securely request the facts from the Fact Pod.
+5. The Fact Pod returns only the facts the user authorized.
+6. The AI uses these facts to generate a personalized response.
 
+More details: [Get Facts flow](./flows/get-facts-flow.md)
 
-- **Protocol Support**:  
-  The Gateway communicates with LLMs or websites using:
-    - **MCP Protocol** ([Model Context Protocol](https://modelcontextprotocol.io))  
-      A protocol for securely exchanging context between LLMs and external systems.
-    - **A2A Protocol** ([Agent-to-Agent Protocol](https://example.com/a2a-protocol))  
-      A protocol for direct communication between agents.
+## Ready-Made Integrations
+To make adoption easy, there are Fact Pod plugins for common platforms:
+- **[WordPress (WIP)](https://github.com/openprofile-ai/wordpress-fact-pod)**
+- **Joomla** (TBD)
+- **Shopify** (TBD)
+- **Magento** (TBD)
 
-> MCP Protocol enables secure context exchange between LLMs and external systems, while A2A Protocol facilitates direct communication between agents in a decentralized environment.
-
-- **OAuth 2.0 Authentication**:  
-  The Gateway supports OAuth 2.0 for secure authentication with LLMs or websites. This ensures that only authorized agents can interact with the Gateway.
-
-
-- **Proxy Design**:  
-  The Gateway is designed as a **stateless proxy**:
-    - **Facts are not stored** on the Gateway.
-    - It acts as a secure conduit for retrieving facts from Fact Pods and delivering them to the LLM or website.
-
-
-- **Support for Multiple Fact Pods**:  
-  The Gateway can connect to and manage multiple Fact Pods simultaneously, enabling it to aggregate facts from various sources.
-
-
-- **Fact Pod Discovery and Querying**:  
-  When a user sends a prompt to the LLM, the Gateway can:
-    - Suggest all available Fact Pod categories to the LLM.
-    - Allow the LLM to decide which facts to query based on the user’s request.
-
-
-- **OAuth Token Management**:  
-  The Gateway stores user authorization with Fact Pods and can:
-    - Retrieve new access tokens using the **OAuth refresh token flow** when existing tokens expire.
-
-## 2. **Fact Pod**
-
-The **Fact Pod** is a data provider hosted by a website or service that owns user data. It is responsible for securely exposing user-approved facts to Gateways while ensuring user consent and privacy. Fact Pods are the backbone of OpenProfile.ai’s decentralized architecture.
-
-### Key Features of the Fact Pod
-
-- **HTTP-Based Communication**:  
-  Fact Pods operate over HTTP, making them lightweight and easy to integrate with existing systems. HTTP is lightweight, widely supported, and enables easy integration with existing web infrastructure."
-
-
-- **`.well-known/openprofile.json` File**:  
-  Each Fact Pod must provide a standardized metadata file at the endpoint:  
-  `/.well-known/openprofile.json`  
-  This file includes:
-    - The **OpenProfile.ai version** supported by the Fact Pod.
-    - **OAuth endpoints** for dynamic client registration, authentication and token exchange.
-    - A **Schema.org-like description** of the Fact Pod, including the fact categories it supports.
-
-> This metadata file is critical for enabling Gateways to dynamically discover Fact Pods and their capabilities, ensuring seamless integration across diverse systems.
-
-
-- **OAuth Flow with Add-Ons**:  
-  Fact Pods must implement OAuth 2.0 authentication with additional extensions, including:
-    - **RFC 7591** ([OAuth 2.0 Dynamic Client Registration Protocol](https://datatracker.ietf.org/doc/html/rfc7591))  
-      Enables Gateways to dynamically register as clients with the Fact Pod.
-    - **OpenID Connect Discovery** ([OIDC Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html))  
-      Provides a mechanism for Gateways to discover OAuth endpoints and other metadata.
-
-> These extensions enhance the standard OAuth flow by enabling dynamic client registration and metadata discovery, ensuring secure and scalable communication between Gateways and Fact Pods.
-
-
-- **User Consent and Control**:  
-  Fact Pods must prioritize user control over their data:
-    - Users must be able to **choose which data categories** (e.g., purchase history, wishlists) to share with the LLM.
-    - Users must have the ability to **revoke access** to their data at any time.
-
-> When users revoke access, the Fact Pod immediately invalidates the associated tokens, ensuring that no further data can be retrieved without renewed consent.
-
-
-# Flows
-
-| Flow Name            | Description                                   | Link                                               |
-|----------------------|-----------------------------------------------|----------------------------------------------------|
-| Enable Fact Pod Flow | Describes the process of enabling a Fact Pod. | [Enable Fact Pod Flow](./flows/enable-fact-pod.md) |
+These can be installed like normal plugins — no advanced coding needed.
 
 ---

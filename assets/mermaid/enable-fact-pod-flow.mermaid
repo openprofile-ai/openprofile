@@ -8,24 +8,34 @@ sequenceDiagram
     actor User
     participant LLM as AI Assistant
     participant Gateway as Gateway<br>[OpenProfile]
-    participant Site.com as Site.com<br>[OpenProfile Fact Pod]
+    participant FactPod as Site.com<br>[OpenProfile Fact Pod]
 
-    User->>LLM: Enable fact pod for Site.com
-    LLM->>Gateway: Call EnableFactPod tool
-    Gateway->>Gateway: Check if Site.com already enabled for this User
-    Gateway->>Gateway: Check if Site.com already enabled for the Gateway
-    Gateway->>Site.com: Check if Site.com supports OpenProfile.ai
-    Gateway->>Site.com: Dynamically register as OAuth client
-    Site.com-->>Gateway: OAuth client_id, client_secret, redirect_url
-    Gateway->>Gateway: Store OAuth client config in the database
-    Gateway->>Gateway: Generate authorize url
-    Gateway-->>LLM: Authorize url
-    LLM-->>User: Authorize url
-    User->>Site.com: Proceed with authorisation
+%% Step 1 — User requests enabling
+    User->>LLM: "Enable Fact Pod for Site.com"
 
-    Note right of Site.com: User Logs In and Choose facts to share
+%% Step 2 — LLM triggers enable process
+    LLM->>Gateway: enableFactPod(site)
 
-    User->>Gateway: Redirect to Gateway to proceed with authorisation flow
-    Gateway->>Site.com: Request access_token and refresh_token
-    Gateway->>Gateway: Store User's access_token and refresh_token in the database
-    Gateway->>LLM: Redirect to AL Assistant
+%% Step 3 — Gateway performs checks
+    Gateway->>FactPod: (1) Check OpenProfile compatibility
+    Gateway->>FactPod: (2) Register as OAuth client
+    FactPod-->>Gateway: (3) OAuth client_id, client_secret, redirect_url
+
+%% Step 4 — Store config & prepare authorization
+    Gateway->>Gateway: Save OAuth client credentials
+    Gateway->>Gateway: Generate authorization URL
+    Gateway-->>LLM: Return authorization URL
+    LLM-->>User: Present authorization link
+
+%% Step 5 — User authorization with Fact Pod
+    User->>FactPod: (4) Authorize & select facts to share
+    Note right of FactPod: User logs in and chooses data to share
+
+%% Step 6 — OAuth callback
+    FactPod-->>Gateway: (5) Redirect with authorization code
+    Gateway->>FactPod: (6) Exchange code for access/refresh tokens
+    FactPod-->>Gateway: (7) Return tokens
+    Gateway->>Gateway: Store tokens securely
+
+%% Step 7 — Completion
+    Gateway-->>LLM: Notify AI Assistant of activation

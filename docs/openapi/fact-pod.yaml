@@ -1,0 +1,490 @@
+openapi: 3.0.3
+info:
+  title: OpenProfile Fact Pod API
+  version: 0.0.1
+  description: |-
+    This is the API specification for an OpenProfile-compliant Fact Pod (e.g., someshop.online). It supports:
+    - Discovery via `.well-known/openprofile.json` endpoints (https://openid.net/specs/openid-connect-discovery-1_0.html)
+    - Dynamic OAuth 2.0 client (registration https://datatracker.ietf.org/doc/html/rfc7591)
+    - OAuth 2.0 Authorization Code and Refresh workflows
+    - Retrieval of available facts via scoped access
+servers:
+  - url: https://someshop.online
+paths:
+  /.well-known/openprofile.json:
+    get:
+      summary: Get OpenProfile Metadata
+      description: Returns the OpenProfile discovery document containing OAuth endpoints, supported scopes, and fact catalog.
+      responses:
+        '200':
+          description: OpenProfile Metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  openprofile:
+                    type: object
+                    properties:
+                      version:
+                        type: string
+                        description: OpenProfile API version supported.
+                    required:
+                      - version
+                  issuer:
+                    type: string
+                    description: Issuer identifier (base URL of fact pod).
+                  authorization_endpoint:
+                    type: string
+                    description: OAuth 2.0 authorize endpoint.
+                  token_endpoint:
+                    type: string
+                    description: OAuth 2.0 token endpoint.
+                  registration_endpoint:
+                    type: string
+                    description: OAuth 2.0 dynamic client registration endpoint.
+                  jwks_uri:
+                    type: string
+                    description: URL for JWKS used to verify tokens.
+                  response_types_supported:
+                    type: array
+                    items:
+                      type: string
+                  grant_types_supported:
+                    type: array
+                    items:
+                      type: string
+                  token_endpoint_auth_methods_supported:
+                    type: array
+                    items:
+                      type: string
+                  scopes_supported:
+                    type: array
+                    items:
+                      type: string
+                  factpod:
+                    type: object
+                    description: Schema.org structured data for fact pod catalog.
+                    required:
+                      - '@context'
+                      - '@type'
+                      - name
+                      - url
+                      - hasPart
+                    properties:
+                      '@context':
+                        type: string
+                        example: https://schema.org
+                      '@type':
+                        type: string
+                        example: WebSite
+                      name:
+                        type: string
+                        example: openprofile
+                      description:
+                        type: string
+                        example: One more site on WordPress
+                      url:
+                        type: string
+                        format: uri
+                        example: https://someshop.online
+                      hasPart:
+                        type: object
+                        required:
+                          - '@type'
+                          - name
+                          - url
+                          - itemListElement
+                        properties:
+                          '@type':
+                            type: string
+                            example: OfferCatalog
+                          name:
+                            type: string
+                            example: Product Categories
+                          url:
+                            type: string
+                            format: uri
+                            example: https://someshop.online/shop-2/
+                          itemListElement:
+                            type: array
+                            items:
+                              type: object
+                              required:
+                                - '@type'
+                                - name
+                                - url
+                                - description
+                              properties:
+                                '@type':
+                                  type: string
+                                  example: OfferCatalog
+                                name:
+                                  type: string
+                                  example: Body lotion
+                                url:
+                                  type: string
+                                  format: uri
+                                  example: https://someshop.online/product-category/body-lotion/
+                                description:
+                                  type: string
+                                  example: ''
+                example:
+                  openprofile:
+                    version: 0.0.1
+                  issuer: https://someshop.online
+                  authorization_endpoint: https://someshop.online/openprofile/oauth/authorize
+                  token_endpoint: https://someshop.online/openprofile/oauth/access_token
+                  registration_endpoint: https://someshop.online/openprofile/oauth/register
+                  jwks_uri: https://someshop.online/.well-known/openprofile-jwks.json
+                  response_types_supported:
+                    - code
+                  grant_types_supported:
+                    - authorization_code
+                    - refresh_token
+                  token_endpoint_auth_methods_supported:
+                    - client_secret_basic
+                    - client_secret_post
+                  scopes_supported:
+                    - facts:category-16
+                    - facts:category-18
+                    - facts:wishlist
+                  factpod:
+                    '@context': https://schema.org
+                    '@type': WebSite
+                    name: openprofile
+                    description: One more site on WordPress
+                    url: https://someshop.online
+                    hasPart:
+                      '@type': OfferCatalog
+                      name: Product Categories
+                      url: https://someshop.online/shop-2/
+                      itemListElement:
+                        - '@type': OfferCatalog
+                          name: Body lotion
+                          url: https://someshop.online/product-category/body-lotion/
+                          description: ''
+                        - '@type': OfferCatalog
+                          name: Bundles
+                          url: https://someshop.online/product-category/bundles/
+                          description: ''
+                        - '@type': OfferCatalog
+                          name: Cleanser
+                          url: https://someshop.online/product-category/cleanser/
+                          description: ''
+  /.well-known/openprofile-jwks.json:
+    get:
+      summary: Get JWKS
+      description: Returns the JSON Web Key Set containing the public keys used to verify signed JWTs issued by this fact pod.
+      responses:
+        '200':
+          description: JWKS document
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keys:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        kty:
+                          type: string
+                          description: Key type
+                        use:
+                          type: string
+                          description: Key usage (sig or enc)
+                        kid:
+                          type: string
+                          description: Key ID
+                        alg:
+                          type: string
+                          description: Algorithm
+                        'n':
+                          type: string
+                          description: RSA modulus
+                        e:
+                          type: string
+                          description: RSA public exponent
+  /openprofile/oauth/register:
+    post:
+      summary: Dynamic Client Registration
+      description: Registers a new OAuth client to use this fact pod's OpenProfile APIs.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - name
+                - redirect_uri
+                - grant_types
+              properties:
+                name:
+                  type: string
+                  description: Client application name.
+                redirect_uri:
+                  type: string
+                  format: uri
+                  description: OAuth redirect URI for the client.
+                grant_types:
+                  type: string
+                  description: Space-separated allowed OAuth grant types.
+      responses:
+        '200':
+          description: Client registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client_id:
+                    type: string
+                    format: uuid
+                    description: Client identifier.
+                  client_secret:
+                    type: string
+                    description: Client secret; keep secure.
+                  name:
+                    type: string
+                  redirect_uri:
+                    type: string
+                    format: uri
+                  grant_types:
+                    type: string
+  /openprofile/oauth/authorize:
+    get:
+      summary: OAuth 2.0 Authorization Endpoint
+      description: Initiates the authorization code flow; redirects the user to consent/login page.
+      parameters:
+        - name: response_type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - code
+        - name: client_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: redirect_uri
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uri
+        - name: scope
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Space-separated list of requested scopes.
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+          description: CSRF protection value returned to client.
+      responses:
+        '302':
+          description: Redirect to consent/login page
+        '400':
+          description: Invalid request parameters
+  /openprofile/oauth/access_token:
+    post:
+      summary: OAuth 2.0 Token Endpoint
+      description: Exchanges authorization code or refresh token for an access token.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - grant_type
+                - client_id
+                - client_secret
+                - redirect_uri
+              properties:
+                grant_type:
+                  type: string
+                  enum:
+                    - authorization_code
+                    - refresh_token
+                client_id:
+                  type: string
+                client_secret:
+                  type: string
+                redirect_uri:
+                  type: string
+                  format: uri
+                code:
+                  type: string
+                  description: Authorization code (for authorization_code grant).
+                refresh_token:
+                  type: string
+                  description: Refresh token (for refresh_token grant).
+      responses:
+        '200':
+          description: Access token response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token_type:
+                    type: string
+                    example: Bearer
+                  expires_in:
+                    type: integer
+                    description: Token lifetime in seconds.
+                  access_token:
+                    type: string
+                    description: JWT access token.
+                  refresh_token:
+                    type: string
+                    description: Refresh token.
+        '400':
+          description: Invalid grant or parameters
+  /openprofile/facts:
+    get:
+      summary: Retrieve Facts
+      description: Returns facts for the authorized user for selected category in JSON-LD schema.org format.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by a single fact category (e.g., `body-lotion`).
+      responses:
+        '200':
+          description: Facts returned successfully in JSON-LD format (schema.org ItemList)
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - '@context'
+                  - '@type'
+                  - name
+                  - itemListElement
+                properties:
+                  '@context':
+                    type: string
+                    example: https://schema.org
+                  '@type':
+                    type: string
+                    example: ItemList
+                  name:
+                    type: string
+                    example: Purchases - Body lotion
+                  itemListElement:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - '@type'
+                        - position
+                        - item
+                      properties:
+                        '@type':
+                          type: string
+                          example: ListItem
+                        position:
+                          type: integer
+                          example: 1
+                        item:
+                          type: object
+                          required:
+                            - '@type'
+                            - '@id'
+                            - orderDate
+                            - totalPrice
+                            - priceCurrency
+                            - seller
+                            - orderedItem
+                          properties:
+                            '@type':
+                              type: string
+                              example: Order
+                            '@id':
+                              type: string
+                              format: uri
+                              example: http://docker.vm/my-account-2/view-order/1856/#item-17
+                            orderDate:
+                              type: string
+                              format: date
+                              example: '2023-09-18'
+                            totalPrice:
+                              type: number
+                              format: float
+                              example: 28
+                            priceCurrency:
+                              type: string
+                              example: UAH
+                            seller:
+                              type: object
+                              properties:
+                                '@type':
+                                  type: string
+                                  example: Organization
+                                name:
+                                  type: string
+                                  example: openprofile
+                            orderedItem:
+                              type: object
+                              properties:
+                                '@type':
+                                  type: string
+                                  example: Product
+                                '@id':
+                                  type: string
+                                  format: uri
+                                  example: http://docker.vm/product/339/
+                                name:
+                                  type: string
+                                  example: Almond Milk Lotion
+                                category:
+                                  type: string
+                                  example: Body lotion
+                                additionalType:
+                                  type: string
+                                  format: uri
+                                  example: http://docker.vm/product-category/body-lotion/
+              example:
+                '@context': https://schema.org
+                '@type': ItemList
+                name: Purchases - Body lotion
+                itemListElement:
+                  - '@type': ListItem
+                    position: 1
+                    item:
+                      '@type': Order
+                      '@id': http://docker.vm/my-account-2/view-order/1856/#item-17
+                      orderDate: '2023-09-18'
+                      totalPrice: 28
+                      priceCurrency: UAH
+                      seller:
+                        '@type': Organization
+                        name: openprofile
+                      orderedItem:
+                        '@type': Product
+                        '@id': http://docker.vm/product/339/
+                        name: Almond Milk Lotion
+                        category: Body lotion
+                        additionalType: http://docker.vm/product-category/body-lotion/
+        '401':
+          description: Unauthorized or invalid token
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
