@@ -92,10 +92,13 @@ sequenceDiagram
 ### **7. Confirmation**
 - **Gateway → LLM (10)** — Confirms that the Fact Pod is now enabled and ready to serve fact requests.
 
-## 🔐 Key Security Points
+## Key Security Points
 - **Explicit user control** — The user chooses exactly which data categories to share.
 - **Standards-based** — Uses OAuth 2.0 with Dynamic Client Registration (RFC 7591).
 - **Token confidentiality** — Tokens are stored only in the Gateway.
 - **No silent permissions** — Access is impossible without user approval.
+
+## OpenAPI
+Please find all needed contracts in the [fact-pod.yaml](../openapi/fact-pod.yaml)
 
 ---

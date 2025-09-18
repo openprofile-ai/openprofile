@@ -81,10 +81,13 @@ Tokens obtained during the **Enable Fact Pod Flow** are used here to authenticat
     - Filters for sensitive skin products
 - **LLM → User:** Returns a highly personalized recommendation.
 
-## 🔐 Key Privacy & Trust Principles
+## Key Privacy & Trust Principles
 - **User consent is respected** — only authorized categories are accessed.
 - **Secure token handling** — LLM never holds tokens; the Gateway manages authentication.
 - **Minimum necessary data** — only facts relevant to the request are fetched.
 - **No data persistence in LLM** (beyond the current conversation context).
+
+## OpenAPI
+Please find all needed contracts in the [fact-pod.yaml](../openapi/fact-pod.yaml)
 
 ---

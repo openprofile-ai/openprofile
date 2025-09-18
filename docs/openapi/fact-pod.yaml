@@ -359,7 +359,7 @@ paths:
       parameters:
         - name: category
           in: query
-          required: false
+          required: true
           schema:
             type: string
           description: Filter by a single fact category (e.g., `body-lotion`).
