@@ -28,7 +28,7 @@ Think of the **Gateway** as a **stateless, secure messenger** between:
   *Example: A standalone Gateway fetching approved facts from Fact Pods.*
 
 ![architecture-embedded-gateway.png](../assets/img/architecture-embedded-gateway.png)  
-*Example: An embedded Gateway inside a website.*
+*Example: An embedded Gateway inside an AI Agent.*
 
 It speaks standard protocols:
 - **[MCP Protocol](https://modelcontextprotocol.io)** — sharing context securely with LLMs
@@ -80,7 +80,7 @@ In plain terms:
 
 This step only happens once per Fact Pod, unless the user revokes access.
 
-More details: [Enable Fact Pod flow](./flows/enable-fact-pod.md)
+**More details:** [Enable Fact Pod flow](./flows/enable-fact-pod.md)
 
 ### 2. **Using a Fact Pod** *(Data Retrieval)*
 When the AI needs personalized data:
@@ -91,7 +91,7 @@ When the AI needs personalized data:
 5. The Fact Pod returns only the facts the user authorized.
 6. The AI uses these facts to generate a personalized response.
 
-More details: [Get Facts flow](./flows/get-facts-flow.md)
+**More details:** [Get Facts flow](./flows/get-facts-flow.md)
 
 ## Ready-Made Integrations
 To make adoption easy, there are Fact Pod plugins for common platforms:
